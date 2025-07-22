@@ -17,6 +17,8 @@
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {2.1.2}Orientation Estimation Using the Accelerometer}{3}{subsubsection.2.1.2}\protected@file@percent }
 \@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Smartphone accelerometer axis orientation}}{3}{figure.caption.2}\protected@file@percent }
 \newlabel{fig:accelerometer}{{3}{3}{Smartphone accelerometer axis orientation}{figure.caption.2}{}}
+\newlabel{lst:orientation_estimation}{{1}{4}{Orientation estimation using accelerometer data}{lstlisting.1}{}}
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {1}{\ignorespaces Orientation estimation using accelerometer data}}{4}{lstlisting.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {2.1.3}Valid Range for Accelerometer-Based Orientation Estimation}{4}{subsubsection.2.1.3}\protected@file@percent }
 \newlabel{fig:2_1_3_1}{{4a}{5}{An image of appropriately estimated orientation}{figure.caption.3}{}}
 \newlabel{sub@fig:2_1_3_1}{{a}{5}{An image of appropriately estimated orientation}{figure.caption.3}{}}
@@ -28,66 +30,75 @@
 \newlabel{sub@fig:2_1_3_4}{{d}{5}{Inapposite $\theta _x$ caused by $y$ to zero}{figure.caption.3}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces A set of images to find the limit of appropriate estimation of orientation}}{5}{figure.caption.3}\protected@file@percent }
 \newlabel{fig:valid_range_test}{{4}{5}{A set of images to find the limit of appropriate estimation of orientation}{figure.caption.3}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.1.4}Orientation Tracking Using the Gyroscope}{5}{subsubsection.2.1.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.1.4}Orientation Tracking Using the Gyroscope}{6}{subsubsection.2.1.4}\protected@file@percent }
 \@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Orientation tracking using trapezoidal integration of gyroscope data}}{6}{figure.caption.4}\protected@file@percent }
 \newlabel{fig:gyro_integration}{{5}{6}{Orientation tracking using trapezoidal integration of gyroscope data}{figure.caption.4}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.1.5}Removal of the Gravity Component}{6}{subsubsection.2.1.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.1.5}Removal of the Gravity Component}{7}{subsubsection.2.1.5}\protected@file@percent }
 \@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Estimated gravity component arranged by time}}{7}{figure.caption.5}\protected@file@percent }
 \newlabel{fig:gravity_component}{{6}{7}{Estimated gravity component arranged by time}{figure.caption.5}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Comparing between raw data and gravity component removed data}}{8}{figure.caption.6}\protected@file@percent }
 \newlabel{fig:removal_of_gravity_component}{{7}{8}{Comparing between raw data and gravity component removed data}{figure.caption.6}{}}
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {2.1.6}Auto Calibration of Orientation}{8}{subsubsection.2.1.6}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Flow chart for the auto calibration process}}{8}{figure.caption.7}\protected@file@percent }
+\newlabel{fig:auto_calibration_flow_chart}{{8}{8}{Flow chart for the auto calibration process}{figure.caption.7}{}}
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {2.1.7}Noise Removal}{8}{subsubsection.2.1.7}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Aceleration, speed, position data before noise removal}}{9}{figure.caption.7}\protected@file@percent }
-\newlabel{fig:integration_drift}{{8}{9}{Aceleration, speed, position data before noise removal}{figure.caption.7}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces Aceleration, speed, position data before noise removal}}{9}{figure.caption.8}\protected@file@percent }
+\newlabel{fig:integration_drift}{{9}{9}{Aceleration, speed, position data before noise removal}{figure.caption.8}{}}
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {2.1.8}Noise Removal - Using Threshold}{9}{subsubsection.2.1.8}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces Distribution of accelerometer values when the smartphone is stationary(each graph shows $x$, $y$, and $z$ axis in order)}}{10}{figure.caption.8}\protected@file@percent }
-\newlabel{fig:accel_histogram}{{9}{10}{Distribution of accelerometer values when the smartphone is stationary(each graph shows $x$, $y$, and $z$ axis in order)}{figure.caption.8}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces Distribution of accelerometer values when the smartphone is stationary(each graph shows $x$, $y$, and $z$ axis in order)}}{10}{figure.caption.9}\protected@file@percent }
+\newlabel{fig:accel_histogram}{{10}{10}{Distribution of accelerometer values when the smartphone is stationary(each graph shows $x$, $y$, and $z$ axis in order)}{figure.caption.9}{}}
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {2.1.9}Noise Removal - Using Kalman Filter}{10}{subsubsection.2.1.9}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces Comparision between raw accelerometer data and noise reduced accelerometer data using Kalman Filter}}{11}{figure.caption.9}\protected@file@percent }
-\newlabel{fig:accel_kalman}{{10}{11}{Comparision between raw accelerometer data and noise reduced accelerometer data using Kalman Filter}{figure.caption.9}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces Comparision between raw speed data and noise reduced speed data using Kalman Filter}}{11}{figure.caption.10}\protected@file@percent }
-\newlabel{fig:speed_kalman}{{11}{11}{Comparision between raw speed data and noise reduced speed data using Kalman Filter}{figure.caption.10}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {12}{\ignorespaces Comparision between raw position data and noise reduced position data using Kalman Filter}}{12}{figure.caption.11}\protected@file@percent }
-\newlabel{fig:position_kalman}{{12}{12}{Comparision between raw position data and noise reduced position data using Kalman Filter}{figure.caption.11}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces Comparision between raw accelerometer data and noise reduced accelerometer data using Kalman Filter}}{11}{figure.caption.10}\protected@file@percent }
+\newlabel{fig:accel_kalman}{{11}{11}{Comparision between raw accelerometer data and noise reduced accelerometer data using Kalman Filter}{figure.caption.10}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {12}{\ignorespaces Comparision between raw speed data and noise reduced speed data using Kalman Filter}}{11}{figure.caption.11}\protected@file@percent }
+\newlabel{fig:speed_kalman}{{12}{11}{Comparision between raw speed data and noise reduced speed data using Kalman Filter}{figure.caption.11}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {13}{\ignorespaces Comparision between raw position data and noise reduced position data using Kalman Filter}}{12}{figure.caption.12}\protected@file@percent }
+\newlabel{fig:position_kalman}{{13}{12}{Comparision between raw position data and noise reduced position data using Kalman Filter}{figure.caption.12}{}}
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {2.1.10}Noise Removal - Using FFT(Fast Fourier Transform)}{12}{subsubsection.2.1.10}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {13}{\ignorespaces Comparision between raw accelerometer data and noise reduced accelerometer data using FFT}}{13}{figure.caption.12}\protected@file@percent }
-\newlabel{fig:accel_fft}{{13}{13}{Comparision between raw accelerometer data and noise reduced accelerometer data using FFT}{figure.caption.12}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {14}{\ignorespaces Comparision between raw speed data and noise reduced speed data using FFT}}{13}{figure.caption.13}\protected@file@percent }
-\newlabel{fig:speed_fft}{{14}{13}{Comparision between raw speed data and noise reduced speed data using FFT}{figure.caption.13}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {15}{\ignorespaces Comparision between raw position data and noise reduced position data using FFT}}{14}{figure.caption.14}\protected@file@percent }
-\newlabel{fig:position_fft}{{15}{14}{Comparision between raw position data and noise reduced position data using FFT}{figure.caption.14}{}}
+\newlabel{lst:fft_noise_reduction}{{2}{12}{Fast Fourier Transform for noise reduction}{lstlisting.2}{}}
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {2}{\ignorespaces Fast Fourier Transform for noise reduction}}{12}{lstlisting.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {14}{\ignorespaces Comparision between raw accelerometer data and noise reduced accelerometer data using FFT}}{13}{figure.caption.13}\protected@file@percent }
+\newlabel{fig:accel_fft}{{14}{13}{Comparision between raw accelerometer data and noise reduced accelerometer data using FFT}{figure.caption.13}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {15}{\ignorespaces Comparision between raw speed data and noise reduced speed data using FFT}}{13}{figure.caption.14}\protected@file@percent }
+\newlabel{fig:speed_fft}{{15}{13}{Comparision between raw speed data and noise reduced speed data using FFT}{figure.caption.14}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {16}{\ignorespaces Comparision between raw position data and noise reduced position data using FFT}}{14}{figure.caption.15}\protected@file@percent }
+\newlabel{fig:position_fft}{{16}{14}{Comparision between raw position data and noise reduced position data using FFT}{figure.caption.15}{}}
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {2.1.11}Limit of Accelerometer}{14}{subsubsection.2.1.11}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Planning Punch Predict Model}{14}{subsection.2.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.2.1}Using Convolutional Neural Network (CNN)}{14}{subsubsection.2.2.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{CNN Model Architecture}{15}{section*.15}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Estimated Parameter Count}{15}{section*.16}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.2.2}Using Recurrent Neural Networks (RNN): LSTM and GRU}{15}{subsubsection.2.2.2}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Comparison of CNN-RNN hybrid models in terms of parameter count}}{15}{table.caption.18}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Parameter Comparison of Architectures}{15}{table.caption.18}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.2.3}Using Hybrid Architecture: CNN + RNN}{16}{subsubsection.2.2.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Preparing Punch Dataset}{16}{subsection.2.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.3.1}Data Construction}{16}{subsubsection.2.3.1}\protected@file@percent }
-\@writefile{lol}{\contentsline {lstlisting}{\numberline {1}{\ignorespaces Example input-output data format}}{16}{lstlisting.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.3.2}Data Augmentation Using Sliding Window}{17}{subsubsection.2.3.2}\protected@file@percent }
-\@writefile{lol}{\contentsline {lstlisting}{\numberline {2}{\ignorespaces Sliding window algorithm for data augmentation}}{17}{lstlisting.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.3.3}Data Accumulation}{17}{subsubsection.2.3.3}\protected@file@percent }
-\newlabel{fig:grip_1}{{\caption@xref {fig:grip_1}{ on input line 686}}{18}{Data Accumulation}{figure.caption.19}{}}
-\newlabel{sub@fig:grip_1}{{}{18}{Data Accumulation}{figure.caption.19}{}}
-\newlabel{fig:grip_2}{{\caption@xref {fig:grip_2}{ on input line 691}}{18}{Data Accumulation}{figure.caption.19}{}}
-\newlabel{sub@fig:grip_2}{{}{18}{Data Accumulation}{figure.caption.19}{}}
-\newlabel{fig:grip_3}{{\caption@xref {fig:grip_3}{ on input line 696}}{18}{Data Accumulation}{figure.caption.19}{}}
-\newlabel{sub@fig:grip_3}{{}{18}{Data Accumulation}{figure.caption.19}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {16}{\ignorespaces A set of images showing the smartphone being held (refer to Figure~\ref {fig:accelerometer} for orientation, the dotted lines are negative axes)}}{18}{figure.caption.19}\protected@file@percent }
-\newlabel{fig:phone_grips}{{16}{18}{A set of images showing the smartphone being held (refer to Figure~\ref {fig:accelerometer} for orientation, the dotted lines are negative axes)}{figure.caption.19}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Planning Punch Prediction Model}{14}{subsection.2.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Final GRU-Based Architecture}{15}{section*.16}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Preparing Punch Dataset}{15}{subsection.2.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.3.1}Data Construction}{15}{subsubsection.2.3.1}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {3}{\ignorespaces Example input-output data format}}{15}{lstlisting.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.3.2}Data Augmentation Using Sliding Window}{16}{subsubsection.2.3.2}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {4}{\ignorespaces Sliding window algorithm for data augmentation}}{16}{lstlisting.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.3.3}Data Accumulation}{16}{subsubsection.2.3.3}\protected@file@percent }
+\newlabel{fig:grip_1}{{\caption@xref {fig:grip_1}{ on input line 666}}{17}{Data Accumulation}{figure.caption.17}{}}
+\newlabel{sub@fig:grip_1}{{}{17}{Data Accumulation}{figure.caption.17}{}}
+\newlabel{fig:grip_2}{{\caption@xref {fig:grip_2}{ on input line 671}}{17}{Data Accumulation}{figure.caption.17}{}}
+\newlabel{sub@fig:grip_2}{{}{17}{Data Accumulation}{figure.caption.17}{}}
+\newlabel{fig:grip_3}{{\caption@xref {fig:grip_3}{ on input line 676}}{17}{Data Accumulation}{figure.caption.17}{}}
+\newlabel{sub@fig:grip_3}{{}{17}{Data Accumulation}{figure.caption.17}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {17}{\ignorespaces A set of images showing the smartphone being held (refer to Figure~\ref {fig:accelerometer} for orientation, the dotted lines are negative axes)}}{17}{figure.caption.17}\protected@file@percent }
+\newlabel{fig:phone_grips}{{17}{17}{A set of images showing the smartphone being held (refer to Figure~\ref {fig:accelerometer} for orientation, the dotted lines are negative axes)}{figure.caption.17}{}}
+\newlabel{fig:data_collection_web}{{18a}{17}{A screen for recording punch data}{figure.caption.18}{}}
+\newlabel{sub@fig:data_collection_web}{{a}{17}{A screen for recording punch data}{figure.caption.18}{}}
+\newlabel{fig:data_collection_web_info}{{18b}{17}{A screen for viewing recorded punch data}{figure.caption.18}{}}
+\newlabel{sub@fig:data_collection_web_info}{{b}{17}{A screen for viewing recorded punch data}{figure.caption.18}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {18}{\ignorespaces Screenshots of the data collection \href  {https://punch-boxing.github.io/punch-data-collection-web/}{website}}}{17}{figure.caption.18}\protected@file@percent }
+\newlabel{fig:data_collection_web_screenshots}{{18}{17}{Screenshots of the data collection \href {https://punch-boxing.github.io/punch-data-collection-web/}{website}}{figure.caption.18}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {19}{\ignorespaces Punch data collection website flow chart}}{18}{figure.caption.19}\protected@file@percent }
+\newlabel{fig:data_collection_flow_chart}{{19}{18}{Punch data collection website flow chart}{figure.caption.19}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.4}Analyzing Punch Data}{18}{subsection.2.4}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {17}{\ignorespaces Punch data collected from a user performing a straight punch, red dots indicate the peak of the punch}}{18}{figure.caption.20}\protected@file@percent }
-\newlabel{fig:straight_user_input}{{17}{18}{Punch data collected from a user performing a straight punch, red dots indicate the peak of the punch}{figure.caption.20}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.5}Building Punch Predict Model}{18}{subsection.2.5}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {18}{\ignorespaces Punch data collected from a user performing various punches(straight, body, hook, uppercut), each colored dot indicates the punch}}{19}{figure.caption.21}\protected@file@percent }
-\newlabel{fig:punch_data}{{18}{19}{Punch data collected from a user performing various punches(straight, body, hook, uppercut), each colored dot indicates the punch}{figure.caption.21}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {20}{\ignorespaces Punch data collected from a user performing a straight punch, red dots indicate the peak of the punch}}{18}{figure.caption.20}\protected@file@percent }
+\newlabel{fig:straight_user_input}{{20}{18}{Punch data collected from a user performing a straight punch, red dots indicate the peak of the punch}{figure.caption.20}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {21}{\ignorespaces Punch data collected from a user performing various punches(straight, body, hook, uppercut), each colored dot indicates the punch}}{19}{figure.caption.21}\protected@file@percent }
+\newlabel{fig:punch_data}{{21}{19}{Punch data collected from a user performing various punches(straight, body, hook, uppercut), each colored dot indicates the punch}{figure.caption.21}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.5}Building Punch Predict Model}{20}{subsection.2.5}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.6}Evaluating Various Punch Predict Model}{20}{subsection.2.6}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.7}Developing Smartphone Application}{20}{subsection.2.7}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.7.1}UI/UX}{20}{subsubsection.2.7.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {3}Results}{20}{section.3}\protected@file@percent }
-\gdef \@abspage@last{20}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.7}Applying Model}{20}{subsection.2.7}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {22}{\ignorespaces A flow chart of the model test \href  {https://punch-boxing.github.io/punch-ml-test-web/}{website}, which allows users to compare predicted values with actual values for each row of the data.}}{20}{figure.caption.22}\protected@file@percent }
+\newlabel{fig:model_test_web_flow_chart}{{22}{20}{A flow chart of the model test \href {https://punch-boxing.github.io/punch-ml-test-web/}{website}, which allows users to compare predicted values with actual values for each row of the data}{figure.caption.22}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {23}{\ignorespaces A screenshot of the model test \href  {https://punch-boxing.github.io/punch-ml-test-web/}{website}, which allows users to compare predicted values with actual values for each row of the data.}}{21}{figure.caption.23}\protected@file@percent }
+\newlabel{fig:model_test_web}{{23}{21}{A screenshot of the model test \href {https://punch-boxing.github.io/punch-ml-test-web/}{website}, which allows users to compare predicted values with actual values for each row of the data}{figure.caption.23}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3}Results}{21}{section.3}\protected@file@percent }
+\gdef \@abspage@last{21}

@@ -98,17 +98,15 @@ However, gravitational force continuously affects accelerometer readings, and va
     \label{fig:accelerometer}
 \end{figure}
 
-The coordinate system of the smartphone's accelerometer follows the right-hand rule, as illustrated in Figure~\ref{fig:accelerometer}. The output values of the sensor are normalized by the gravitational acceleration $9.8\,\mathrm{m/s^2}$, and thus each axis returns a value in units of $g$.
+The coordinate system of the smartphone's accelerometer follows the right-hand rule, as illustrated in Figure~\ref{fig:accelerometer}. The output values of the sensor are normalized by the gravitational acceleration $9.8\,\mathrm{m/s^2}$, and thus each axis returns a value in units of $g$ (an equivalent to gravitational force).
 
-When the smartphone is held vertically, such that the $xz$-plane is parallel to the ground and the screen is facing the user, the expected accelerometer reading due to gravity is:
+When the smartphone is held vertically such that the $xz$-plane is parallel to the ground and the screen is facing the user, the expected accelerometer reading $ \vec{g}$ due to gravity is:
 
 \[
-\begin{bmatrix}
-0\\
--1\\
-0
-\end{bmatrix}
+ \vec{g} = \begin{bmatrix} 0 & -1 & 0 \end{bmatrix}^\top
 \]
+
+This vector $ \vec{g}$ serves as the reference vector, representing the direction of gravity in the device's coordinate system under ideal upright conditions.
 
 Let $\begin{bmatrix}x&y&z\end{bmatrix}^\top$ be the first accelerometer reading obtained after calibration. By comparing this measurement to the reference vector, we can estimate the initial orientation of the device. Before doing so, the accelerometer vector must be normalized to ensure consistency in magnitude.
 
@@ -194,7 +192,7 @@ z
 \begin{bmatrix}
 \sin\theta_z \\
 -\cos\theta_x \cos\theta_z \\
-\sin\theta_x \cos\theta_z
+-\sin\theta_x \cos\theta_z
 \end{bmatrix}
 \]
 
@@ -207,7 +205,7 @@ From this simplified form, we can compute the orientation angles as follows. The
 To isolate $\theta_x$, we divide the third component by the second:
 
 \[
-\frac{z}{y} = \frac{\sin\theta_x \cos\theta_z}{-\cos\theta_x \cos\theta_z} = -\tan\theta_x \quad \Rightarrow \quad \theta_x = -\arctan\left(\frac{z}{y}\right)
+\frac{z}{y} = \frac{-\sin\theta_x \cos\theta_z}{-\cos\theta_x \cos\theta_z} = \tan\theta_x \quad \Rightarrow \quad \theta_x = \arctan\left(\frac{z}{y}\right)
 \]
 
 Let the initial orientation of the device be denoted by $\begin{bmatrix} \psi_0 & \theta_0 & \phi_0 \end{bmatrix}^\top$, corresponding to rotations around the $x$-, $y$-, and $z$-axes, respectively. Using the above method, we can estimate the initial orientation as:
@@ -220,13 +218,30 @@ Let the initial orientation of the device be denoted by $\begin{bmatrix} \psi_0 
 \end{bmatrix}
 =
 \begin{bmatrix}
--\arctan\left(\frac{z}{y}\right) \\
+\arctan\left(\frac{z}{y}\right) \\
 0 \\
 \arcsin(x)
 \end{bmatrix}
 \]
 
 This method allows for a simple and effective estimation of the device’s initial pitch and roll, based on gravitational acceleration and assuming no initial yaw rotation.
+
+\begin{lstlisting}[language=Python, caption={Orientation estimation using accelerometer data}, label={lst:orientation_estimation}]
+def initialize_orientation(self):
+    _initial_vector = np.array([self.acceleration_x[0], self.acceleration_y[0], self.acceleration_z[0]])
+    _initial_vector = _initial_vector / np.linalg.norm(_initial_vector)
+    
+    self.initial_rotation_x = np.arctan2(_initial_vector[2], _initial_vector[1])
+    self.initial_rotation_y = 0.0
+    self.initial_rotation_z = np.arcsin(_initial_vector[0])
+    
+    print(f"Initial Vector: {_initial_vector}")
+    print(f"Initial Rotation: {np.degrees(self.initial_rotation_x)}, {np.degrees(self.initial_rotation_y)}, {np.degrees(self.initial_rotation_z)}")
+    
+    self.rotation_x = [p + self.initial_rotation_x for p in self.numerical_integration(self.gyro_x, self.time)]
+    self.rotation_y = [r + self.initial_rotation_y for r in self.numerical_integration(self.gyro_y, self.time)]
+    self.rotation_z = [y + self.initial_rotation_z for y in self.numerical_integration(self.gyro_z, self.time)]
+\end{lstlisting}
 
 \subsubsection{Valid Range for Accelerometer-Based Orientation Estimation}
 
@@ -238,26 +253,26 @@ To address this issue, an alternative derivation using a product of the $y$ and 
 x = \sin\theta_z
 \]
 \[
-y \cdot z = -\cos\theta_x \cos\theta_z \cdot \sin\theta_x \cos\theta_z 
-= -\sin\theta_x \cos\theta_x \cdot \cos^2\theta_z 
-= -\sin\theta_x \cos\theta_x \cdot (1 - \sin^2\theta_z)
-= \frac{1}{2} \sin(2\theta_x) \cdot (x^2 - 1)
+y \cdot z = \cos\theta_x \cos\theta_z \cdot \sin\theta_x \cos\theta_z 
+= \sin\theta_x \cos\theta_x \cdot \cos^2\theta_z 
+= \sin\theta_x \cos\theta_x \cdot (1 - \sin^2\theta_z)
+= \frac{1}{2} \sin(2\theta_x) \cdot (1 - x^2)
 \]
 
 From this, we can isolate $\theta_x$ as:
 
 \[
-\theta_x = \frac{1}{2} \arcsin\left(\frac{y \cdot z}{x^2 - 1}\right)
+\theta_x = \frac{1}{2} \arcsin\left(\frac{y \cdot z}{1 - x^2}\right)
 \]
 
-However, this formulation also fails when the $x$-axis acceleration value approaches $1$ or $-1$, i.e., when $\theta_z \rightarrow \pm \frac{\pi}{2}$, which corresponds to tilting the smartphone to 90 degrees around the $z$-axis. In this situation, the denominator $x^2 - 1$ approaches zero, causing the expression to diverge and leading to instability in the calculation of $\theta_x$.
+However, this formulation also fails when the $x$-axis acceleration value approaches $1$ or $-1$, i.e., when $\theta_z \rightarrow \pm \frac{\pi}{2}$, which corresponds to tilting the smartphone to 90 degrees around the $z$-axis. In this situation, the denominator $1 - x^2$ approaches zero, causing the expression to diverge and leading to instability in the calculation of $\theta_x$.
 
 Empirical tests showed that when the tilt angle exceeds approximately $80^\circ$, the accelerometer data becomes increasingly noisy and unreliable, as illustrated in Figure~\ref{fig:valid_range_test}. In such cases, the estimated $\theta_x$ value becomes extremely large and physically implausible.
 
-To ensure reliable orientation estimation, we restrict the accelerometer-based calculation of orientation (Section~2.1.2) to cases where the cosine similarity between the reference vector $\mathbf{g}_{ref} = \begin{bmatrix} 0 & -1 & 0 \end{bmatrix}^\top$ and the normalized acceleration vector $\mathbf{a}$ is greater than $0.5$, which corresponds to a maximum tilt angle of approximately $60^\circ$ from the ideal upright orientation:
+To ensure reliable orientation estimation, we restrict the accelerometer-based calculation of orientation (Section~2.1.2) to cases where the cosine similarity between the reference vector $\vec{g}$ and the normalized acceleration vector $\mathbf{a}$ is greater than $0.5$, which corresponds to a maximum tilt angle of approximately $60^\circ$ from the ideal upright orientation:
 
 \[
-\cos\theta = \frac{\mathbf{g}_{ref} \cdot \mathbf{a}}{\|\mathbf{g}_{ref}\| \|\mathbf{a}\|} = \frac{-a_y}{\|\mathbf{a}\|} > 0.5
+\cos\theta = \frac{ \vec{g} \cdot \vec{a}}{\| \vec{g}\| \|\vec{a}\|} = \frac{-a_y}{\|\vec{a}\|} > 0.5
 \]
 
 If the initial orientation does not satisfy this condition, the user is prompted to hold the device in an upright position to proceed with calibration.
@@ -265,22 +280,26 @@ If the initial orientation does not satisfy this condition, the user is prompted
 \FloatBarrier
 \begin{figure}[h]
     \begin{subfigure}{0.5\textwidth}
-        \includegraphics[width=\textwidth]{Images/2_1_3_1.jpg}
+        \centering
+        \includegraphics[width=0.9\textwidth]{Images/2_1_3_1.jpg}
         \caption{An image of appropriately estimated orientation}
         \label{fig:2_1_3_1}
     \end{subfigure}
     \begin{subfigure}{0.5\textwidth}
-        \includegraphics[width=\textwidth]{Images/2_1_3_2.jpg}
+        \centering
+        \includegraphics[width=0.9\textwidth]{Images/2_1_3_2.jpg}
         \caption{Inapposite $\theta_x$ caused by $y$, $z$ getting small}
         \label{fig:2_1_3_2}
     \end{subfigure}
     \begin{subfigure}{0.5\textwidth}
-        \includegraphics[width=\textwidth]{Images/2_1_3_3.jpg}
+        \centering
+        \includegraphics[width=0.9\textwidth]{Images/2_1_3_3.jpg}
         \caption{Error caused by zero $\theta_x$}
         \label{fig:2_1_3_3}
     \end{subfigure}
     \begin{subfigure}{0.5\textwidth}
-        \includegraphics[width=\textwidth]{Images/2_1_3_4.jpg}
+        \centering
+        \includegraphics[width=0.9\textwidth]{Images/2_1_3_4.jpg}
         \caption{Inapposite $\theta_x$ caused by $y$ to zero}
         \label{fig:2_1_3_4}
     \end{subfigure}
@@ -346,34 +365,20 @@ Through this integration, the angular velocity data from the gyroscope can be ac
 
 The smartphone's accelerometer inherently includes the effect of gravity. To isolate the linear acceleration resulting purely from the device’s movement, the gravitational component must be removed. This is accomplished by reconstructing the gravity vector using the orientation estimated in the previous steps.
 
-This process is essentially the inverse of the approach described in Section~2.1.2. When the device is held vertically with its screen facing the user, the expected acceleration due to gravity is:
+This process is essentially the inverse of the approach described in Section~2.1.2. When the device is held vertically with its screen facing the user, the expected acceleration due to gravity is $ \vec{g}$. By rotating this reference vector according to the current orientation of the device, we can recover the instantaneous gravity vector in the device's coordinate frame.
+
+Let the current orientation of the device be represented by the Euler angles: 
 
 \[
-\begin{bmatrix}
-0 \\
--1 \\
-0
-\end{bmatrix}
+\begin{bmatrix}\psi_t \\ \theta_t \\ \phi_t\end{bmatrix}
 \]
 
-By rotating this reference vector according to the current orientation of the device, we can recover the instantaneous gravity vector in the device's coordinate frame.
-
-Let the current orientation of the device be represented by the Euler angles:
-
-\[
-\begin{bmatrix}
-\psi_t \\
-\theta_t \\
-\phi_t
-\end{bmatrix}
-\]
-
-and let the reconstructed gravity vector at time $t$ be denoted as $\vec{g}_t = \begin{bmatrix} g_{x,t} \\ g_{y,t} \\ g_{z,t} \end{bmatrix}$. Then, the gravity vector is given by:
+and let the reconstructed gravity vector at time $t$ be denoted as 3-dimensional vector $\vec{g}_t$. Then, the gravity vector is given by:
 
 \[
 \vec{g}_t =
 \begin{bmatrix}
-\sin\phi_t \\
+-\sin\phi_t \\
 -\cos\psi_t \cos\phi_t \\
 \sin\psi_t \cos\phi_t
 \end{bmatrix}
@@ -405,8 +410,15 @@ This process enables accurate detection of motion-induced acceleration ignoring 
 \FloatBarrier
 \subsubsection{Auto Calibration of Orientation}
 Since gyroscopes accumulate error over time, the orientation should be periodically recalibrated.
-To achieve this, if the magnitude of the acceleration vector is below a certain threshold and the device is able to calibrate its orientation(Section~2.1.3), the orientation is recalibrated through the accelerometer data(Section~2.1.2).
+To achieve this, if the magnitude of the acceleration vector is below a certain threshold(which is set to 1.1) and the device is able to calibrate its orientation(Section~2.1.3), the orientation is recalibrated through the accelerometer data(Section~2.1.2).
 
+\FloatBarrier
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{auto_calibration_flow_chart.png}
+    \caption{Flow chart for the auto calibration process}
+    \label{fig:auto_calibration_flow_chart}
+\end{figure}
 
 \FloatBarrier
 \subsubsection{Noise Removal}
@@ -487,6 +499,24 @@ Given the lack of significant improvement in position estimation accuracy after 
 In this experiment, FFT was applied to the time-series accelerometer data to obtain its frequency spectrum. Frequency components with amplitudes below a threshold of 0.1 were considered insignificant and were eliminated. Subsequently, the Inverse FFT (IFFT) was used to reconstruct the denoised signal in the time domain.
 
 Despite the theoretical effectiveness of this approach, the experimental results showed no substantial improvement in position estimation accuracy. The reconstructed signals appeared cleaner, but the overall trajectory estimation remained inaccurate. Thus, the FFT-based filtering approach, like previous methods, did not yield a practically meaningful enhancement in performance.
+\begin{lstlisting}[language=Python, caption={Fast Fourier Transform for noise reduction}, label={lst:fft_noise_reduction}]
+n = len(fft_time)
+
+fft_x = np.fft.fft(fft_acceleration_x)
+fft_x_single = np.abs(fft_x[:n//2])
+fft_x_single[1:] = 2 * fft_x_single[1:]
+
+fft_y = np.fft.fft(fft_acceleration_y)
+fft_y_single = np.abs(fft_y[:n//2])
+fft_y_single[1:] = 2 * fft_y_single[1:]
+
+fft_z = np.fft.fft(fft_acceleration_z)
+fft_z_single = np.abs(fft_z[:n//2])
+fft_z_single[1:] = 2 * fft_z_single[1:]
+
+frequencies = np.fft.fftfreq(len(fft_time), d=(fft_time[1] - fft_time[0]))
+\end{lstlisting}
+
 \FloatBarrier
 \begin{figure}[h]
     \centering
@@ -517,86 +547,27 @@ To address this issue, several preprocessing techniques were applied, including 
 
 In response, this study proposes a novel approach: instead of relying on traditional physics-based integration methods, we remove only the gravitational component from the acceleration data and employ a deep learning model to learn and predict the trajectory of the smartphone. By leveraging data-driven learning rather than error-prone numerical integration, this method aims to alleviate the issue of accumulated drift and achieve more practical and reliable position estimation in mobile environments.
 
+\subsection{Planning Punch Prediction Model}
 
-\subsection{Planning Punch Predict Model}
+While multiple model architectures were explored—including pure Convolutional Neural Networks (CNN) and hybrid CNN-RNN structures—the final implementation adopts a lightweight Gated Recurrent Unit (GRU) model. This decision is primarily motivated by two factors.
 
-\subsubsection{Using Convolutional Neural Network (CNN)}
+First, the punch motion exhibits relatively simple and distinct temporal patterns that do not require deep spatial feature extraction. Second, considering the operational constraints of mobile environments, the model must perform inference up to 20 times per second. In this context, the computational efficiency of GRU makes it better suited for real-time execution than heavier CNN or LSTM-based models.
 
-The accelerometer data, with gravitational components removed, consist of discrete values along the $x$, $y$, and $z$ axes, collected in temporal order. While it is theoretically possible to incorporate orientation (attitude) information, such an approach incurs excessive computational overhead, making it unsuitable for real-time inference on mobile devices.
+Although CNNs and CNN-RNN hybrids (e.g., Conv2D+LSTM or Conv2D+GRU) were evaluated, their larger parameter sizes and higher computational cost presented challenges for on-device deployment. The GRU architecture, by contrast, achieves a good balance between accuracy and speed, especially for time-sensitive applications such as punch classification.
 
-This study leverages the observation that a typical punch motion is completed within approximately 0.5 seconds. Based on this, we define one input sequence as a series of 10 acceleration vectors collected at 0.05-second intervals, forming an input shape of $10 \times 3$. To capture both the temporal continuity and the inter-axis interactions, a one-dimensional convolutional layer with a filter size of $3 \times 3$ is applied across the input. This layer extracts relevant spatial-temporal features from the acceleration data.
+To facilitate faster convergence and enhance model robustness, a \texttt{tanh} activation function is applied to the input layer. This serves as a normalization step, scaling the accelerometer data to fall within a bounded range, which is particularly beneficial when the input magnitude varies significantly across different users or punching styles.
 
-The convolutional output is then flattened and passed through a fully connected layer, producing four output nodes corresponding to the punch categories. A SoftMax activation is applied to the output layer to obtain a probability distribution over the following punch types: straight, hook, upper cut, and body.
-
-To minimize unnecessary inference and reduce resource consumption on mobile devices, a lightweight pre-processing step is introduced. The model is triggered only when the sum of the absolute values of the $x$, $y$, and $z$ axis accelerations exceeds a predefined threshold. Upon activation, the most recent 10 data points are retrieved from a buffer and fed into the model, ensuring real-time performance with minimal energy cost.
-
-\paragraph{CNN Model Architecture}
+\paragraph{Final GRU-Based Architecture}
 \begin{itemize}
-    \item \textbf{Input:} $3 \times 10$ accelerometer sequence
-    \item \textbf{Convolutional Layer:} Filter size = $3 \times 3$, Stride = 1, Output channels = 4 (up to 8 in experiments)
-    \item \textbf{Flatten:} Output vector length = 32 (or up to 64)
-    \item \textbf{Fully Connected Layer:} 4 output neurons (one for each punch type)
-    \item \textbf{SoftMax:} Outputs class probabilities
-    \item \textbf{Threshold-based Trigger:} Executes inference only when acceleration magnitude exceeds predefined threshold
+    \item \textbf{Input:} $10 \times 3$ sequence of accelerometer vectors
+    \item \textbf{Preprocessing:} \texttt{tanh} activation applied to raw input for normalization
+    \item \textbf{Recurrent Layer:} Single GRU layer with 8--16 hidden units
+    \item \textbf{Fully Connected Layer:} 4 output neurons (for punch classes: straight, hook, upper cut, body)
+    \item \textbf{SoftMax:} Converts outputs to class probabilities
+    \item \textbf{Threshold-Based Trigger:} Inference is executed only when the magnitude of acceleration exceeds a predefined threshold
 \end{itemize}
 
-\paragraph{Estimated Parameter Count}
-\begin{itemize}
-    \item Convolutional Weights: $3 \times 3 \times 3 \times 4 = 108$
-    \item Fully Connected Weights: $32 \times 4 = 128$
-    \item Biases: 4
-    \item \textbf{Total:} $\approx 168$ parameters
-\end{itemize}
-
-
-\subsubsection{Using Recurrent Neural Networks (RNN): LSTM and GRU}
-
-While the previous model employed Convolutional Neural Networks (CNN) to process time-sequenced input data, the computational cost per timestep posed limitations for real-time execution and continuous operation on mobile devices.
-
-To address this issue, the current study explores the use of Recurrent Neural Network (RNN) architectures—specifically Long Short-Term Memory (LSTM) and Gated Recurrent Unit (GRU). These models sequentially incorporate information from previous inputs, making them particularly suitable for learning temporal dependencies in time-series data. While CNNs can partially capture time-dependent features, RNNs are inherently designed for temporal modeling and often require fewer parameters, leading to improved efficiency for mobile deployment.
-
-In this model, we also considered the inclusion of temporal phase information alongside the raw accelerometer inputs. Temporal phase, often expressed as a sine value, was incorporated to help the network differentiate between subtle phase shifts in motion. This approach is especially beneficial for recognizing repetitive or periodic movements, and can contribute to enhanced inference precision.
-
-\paragraph{Parameter Comparison of Architectures}
-
-\begin{table}[h]
-\centering
-\begin{tabular}{|l|c|}
-\hline
-\textbf{Model Configuration} & \textbf{Estimated Parameter Count} \\
-\hline
-Conv2D (4 filters) + LSTM (32 units) & $\sim$6,000+ \\
-Conv2D (2 filters) + GRU (8 units) & $\sim$800--1,000 \\
-\hline
-\end{tabular}
-\caption{Comparison of CNN-RNN hybrid models in terms of parameter count}
-\end{table}
-
-Although LSTM offers a higher capacity for modeling complex temporal patterns, it also introduces substantial computational overhead. This overhead can be problematic in mobile environments where real-time inference is required. In contrast, GRU provides a more lightweight alternative, reducing the parameter count by more than 85\% while maintaining competitive performance.
-
-Given the trade-offs between accuracy and computational cost, GRU was found to be a more practical choice for real-time, resource-constrained applications such as smartphone-based punch classification.
-
-\subsubsection{Using Hybrid Architecture: CNN + RNN}
-
-To effectively process the sequential accelerometer data, this study adopts a hybrid architecture combining a Convolutional Neural Network (CNN) and a Recurrent Neural Network (RNN). In this configuration, the CNN is responsible for extracting local spatial features at each time step, while the RNN captures the temporal dependencies across the entire sequence.
-
-The model operates as follows:
-
-\begin{quote}
-\begin{center}
-Time $t_1$: Input $(3 \times 3)$ → CNN → Feature Vector $\mathbf{v}_1$ \\
-Time $t_2$: Input $(3 \times 3)$ → CNN → Feature Vector $\mathbf{v}_2$ \\
-\quad$\vdots$ \\
-Time $t_t$: Input $(3 \times 3)$ → CNN → Feature Vector $\mathbf{v}_t$ \\[1ex]
-
-RNN([\,$\mathbf{v}_1$, $\mathbf{v}_2$, ..., $\mathbf{v}_t$\,]) → Output Class (0--3)
-\end{center}
-\end{quote}
-
-In other words, for each time step, a $3 \times 3$ acceleration matrix is passed through a CNN to extract a compressed feature vector. These feature vectors, representing the motion characteristics over time, are then sequentially input into an LSTM (or GRU) layer to predict the final class label.
-
-This architecture effectively combines the strengths of both networks: CNNs efficiently learn spatial representations from short-term input windows, while RNNs capture longer-term temporal dynamics, making the model well-suited for fine-grained motion classification such as punch detection.
-
+This design ensures that the model maintains real-time performance with minimal energy usage, making it suitable for continuous punch classification on mobile devices.
 
 
 
@@ -609,9 +580,9 @@ This architecture effectively combines the strengths of both networks: CNNs effi
 
 To develop an effective deep learning-based punch recognition model, we constructed time-series input data derived from smartphone sensor readings and created corresponding labeled datasets.
 
-The raw sensor data were collected using the built-in Inertial Measurement Unit (IMU), which includes a 3-axis accelerometer, 3-axis gyroscope, and 3-axis magnetometer. However, the magnetometer data were excluded from the model due to high noise levels and their limited contribution to motion recognition. Similarly, gyroscope data—although useful for orientation estimation—were also excluded from the input features to reduce model complexity. If computational resources permit, orientation data derived from gyroscope integration may be incorporated in future versions.
+The raw sensor data were collected using the built-in Inertial Measurement Unit (IMU), which includes a 3-axis accelerometer, 3-axis gyroscope, and 3-axis magnetometer. However, the magnetometer data were excluded from the model due to high noise levels and their limited contribution to motion recognition. Similarly, gyroscope data—although useful for orientation estimation—were also excluded from the input features to reduce model complexity. In contrast, since the x and z axis orientation datas are stable and correct in comparison to the y axis, these datas can provide a certain pattern for training.
 
-Based on this setup, the input features $\mathbf{X}$ consist of stacked 3-axis accelerometer readings over a fixed time window $T$. Each sample is a 3-dimensional tensor of shape $(T, 3, 3)$, where each element corresponds to a $3 \times 3$ matrix containing three consecutive accelerometer readings (for temporal locality) across the $x$, $y$, and $z$ axes.
+Based on this setup, the input features $\mathbf{X}$ can be whether processed 3-dimension acceleration data or include additional 2 dimensions for x, z, axis orientation data over a fixed time window $T$.
 
 The target label $\mathbf{y}$ corresponds to the punch class annotated at each timestamp. The class labels are defined as follows:  
 \texttt{0}: No punch detected,  
@@ -625,11 +596,11 @@ For training, class labels are initially provided as strings (e.g., `"Straight"`
 \begin{lstlisting}[language=Python, caption={Example input-output data format}]
 # Example shape: (T, 3, 3)
 X = [
-  [[...], [...], [...]],  # t1: 3-axis x 3 time steps
-  [[...], [...], [...]],  # t2
-  ...
-  [[...], [...], [...]],  # tT
-]
+    [ acc_x_1, acc_y_1, acc_z_1, (orient_x_1, orient_z_1) ], 
+    [ acc_x_2, acc_y_2, acc_z_2, (orient_x_2, orient_z_2) ],
+    ...
+    [ acc_x_T, acc_y_T, acc_z_T, (orient_x_T, orient_z_T) ]
+] # orientation is optional
 
 y = [
   "None",
@@ -639,7 +610,6 @@ y = [
   "None",
 ]
 \end{lstlisting}
-
 This labeling scheme ensures that the model learns not only to recognize punch gestures, but also to distinguish them from idle or transitional motion patterns. The model is trained to output a class prediction at each time step, enabling real-time recognition of punch events as they occur.
 
 
@@ -659,7 +629,7 @@ X_list = []
 y_list = []
 
 for i in range(len(data) - WINDOW):
-    window = data[i:i+WINDOW]  # shape: (WINDOW, 3, 3)
+    window = data[i:i+WINDOW]
     label = label_list[i + WINDOW - 1]  # label at the last timestep
     X_list.append(window)
     y_list.append(label)
@@ -673,9 +643,19 @@ This approach enables a significant increase in the number of training samples, 
 
 
 \subsubsection{Data Accumulation}
-To accumulate the punch dataset, we collected data from multiple users performing various punch types. Each user was instructed to perform a series of punches while holding the smartphone in a same grip, as shown in Figure~\ref{fig:phone_grips}.
+To accumulate the punch dataset, a website was developed to allow users to record their punch data using a smartphone. The datas are stored into CloudFlare Storage via CloudFlare Workers.
 
-The gravity component of the accelerometer is removed each time interval.
+
+The columns of the accumulated datasets are as follows:
+\begin{itemize}
+    \item \textbf{Index}: The index of the data entry.
+    \item \textbf{Time}: The timestamp of the data collection.
+    \item \textbf{Raw Acceleration X, Y, Z}: The raw acceleration values recorded by the smartphone's accelerometer.
+    \item \textbf{Acceleration X, Y, Z}: Gravity-removed acceleration values calculated from the raw data.
+    \item \textbf{Gyro X, Y, Z}: The gyroscope readings for the x, y, and z axes.
+    \item \textbf{Orientation X, Y, Z}: The estimated orientation angles of the smartphone in radians.
+    \item \textbf{Punch Type}: The type of punch performed, such as "None", "Straight", "Hook", "Uppercut", or "Body".
+\end{itemize}
 
 \FloatBarrier
 \begin{figure}[h]
@@ -700,7 +680,38 @@ The gravity component of the accelerometer is removed each time interval.
 \end{figure}
 
 \FloatBarrier
+\begin{figure}[h]
+    \centering
+    \begin{subfigure}{0.5\textwidth}
+        \centering
+        \includegraphics[width=0.7\textwidth]{data_collection_web.png}
+        \caption{A screen for recording punch data}
+        \label{fig:data_collection_web}
+    \end{subfigure}%
+    \begin{subfigure}{0.5\textwidth}
+        \centering
+        \includegraphics[width=0.7\textwidth]{data_collection_web_info.png}
+        \caption{A screen for viewing recorded punch data}
+        \label{fig:data_collection_web_info}
+
+    \end{subfigure}
+    \caption{Screenshots of the data collection \href{https://punch-boxing.github.io/punch-data-collection-web/}{website}}
+    \label{fig:data_collection_web_screenshots}
+\end{figure}
+
+\FloatBarrier
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.7\textwidth]{data_collection_flow_chart.png}
+    \caption{Punch data collection website flow chart}
+    \label{fig:data_collection_flow_chart}
+\end{figure}
+
+
+\FloatBarrier
 \subsection{Analyzing Punch Data}
+
+As the graph is shown in Figure~\ref{fig:straight_user_input}, a Straight punch seems to have a relation between acceleration. Especially the local minima of the X-axis acceleration usually matches the peak of the punch. Besides, the value of Y-axis orientation had difference with the real situation. This seems to be occured by accumulated error of the gyroscope.
 
 \FloatBarrier
 \begin{figure}[h]
@@ -713,7 +724,7 @@ The gravity component of the accelerometer is removed each time interval.
 \FloatBarrier
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\textwidth]{punch_data.png}
+    \includegraphics[height=0.9\textheight]{punch_data.png}
     \caption{Punch data collected from a user performing various punches(straight, body, hook, uppercut), each colored dot indicates the punch}
     \label{fig:punch_data}
 \end{figure}
@@ -724,36 +735,46 @@ The gravity component of the accelerometer is removed each time interval.
 
 
 
-
+\FloatBarrier
 \subsection{Building Punch Predict Model}
 
-
-
-
-
-
-
+In the first try, since TensorFlow can build a model with fewer code, the model was built by TensorFlow and imported to various platforms by TensorFlow.js. However, in order to specify options(e.g. adding a hyperbolic tangent layer right behind the input layer for data normalization), the model was built again by PyTorch. Both codes are available in \href{https://github.com/punch-boxing/punch-ml/}{GitHub}.
 
 
 \FloatBarrier
 \subsection{Evaluating Various Punch Predict Model}
 
+MMASDAKFASDKFASKDFJ
+comparision between raw acc and gravity removed acc
+comparision between just acc and acc with orientation
+
+
+\FloatBarrier
+\subsection{Applying Model}
+
+
+\FloatBarrier
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.7\textwidth]{model_test_web_flow_chart.png}
+    \caption{A flow chart of the model test \href{https://punch-boxing.github.io/punch-ml-test-web/}{website}, which allows users to compare predicted values with actual values for each row of the data.}
+    \label{fig:model_test_web_flow_chart}
+\end{figure}
+
+\FloatBarrier
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{model_test_web.png}
+    \caption{A screenshot of the model test \href{https://punch-boxing.github.io/punch-ml-test-web/}{website}, which allows users to compare predicted values with actual values for each row of the data.}
+    \label{fig:model_test_web}
+\end{figure}
 
 
 
-
-
-
-
-
-
-
-\subsection{Developing Smartphone Application}
-
-\subsubsection{UI/UX}
-
-
-
+\FloatBarrier
 \section{Results}
+Removing the gravity component from the accelerometer data and applying a deep learning model to predict punch types has shown promising results. The model was able to classify punches with reasonable accuracy, demonstrating the potential of using smartphone sensors for real-time motion recognition. Therefore this approach can provide a effective solution for punch classification in mobile applications which helps solving the problem of moderns' sedentary lifestyle and lack of exercise.
+
+All the sources of this project are available in \href{https://github.com/punch-boxing/}{GitHub}.
 
 \end{document}
