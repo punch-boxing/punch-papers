@@ -1,7 +1,7 @@
 \documentclass{article}
 
 \usepackage[english]{babel}
-\usepackage[letterpaper,top=2cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+\usepackage[a4paper, top=2cm, bottom=2cm, left=3cm, right=3cm, marginparwidth=1.75cm]{geometry}
 \usepackage{amsmath}
 \usepackage{graphicx}
 \usepackage{xcolor}
@@ -9,6 +9,10 @@
 \usepackage{placeins}
 \usepackage{subcaption}
 \usepackage{listings}
+\usepackage{indentfirst}
+
+\setlength{\parindent}{0.2in}
+\setlength{\parskip}{5pt}
 
 \lstset{
     language=Python,
@@ -48,33 +52,24 @@
              {9}{{{\color{purple!80!black}9}}}1
 }
 \graphicspath{{Images/}}
-
-\title{PUNCH!}
+\title{\textbf{PUNCH!}}
 \author{Kim Hyeong-Seok}
-
 \begin{document}
 \maketitle
-
 \begin{abstract}
     PUNCH! is a mobile application designed to facilitate combat-style exercise using only a smartphone, enabling users to engage in physical activity even in confined spaces. This paper details the development and testing of PUNCH!, focusing on the utilization of smartphone sensors to track movement and classify punch types. The application employs advanced techniques such as orientation estimation, noise reduction, and deep learning models to achieve accurate motion detection and classification. The results demonstrate the feasibility of using smartphones for effective combat-style exercise, addressing common barriers to physical activity in modern lifestyles.
 \end{abstract}
 
 \section{Introduction}
-
 Modern individuals often struggle to maintain a healthy lifestyle due to a lack of physical activity, chronic stress, and the demands of a busy daily routine. In particular, time and space constraints, financial burdens, and psychological barriers associated with exercise contribute to the growing difficulty of engaging in regular physical activity. To address these challenges, we developed PUNCH!, a mobile application that enables users to easily engage in combat-style exercise using only a smartphone, even within confined spaces.
 
 The development and testing of this application were conducted using a MacBook Pro (M1, 2021) and an iPhone 14 Pro, which will hereafter be referred to as the smartphone. All data collection and code execution were performed exclusively on these two devices, and the application has not been tested on platforms other than iOS.
-
 \section{Methods}
-
 \subsection{Utilization of Smartphone Sensors}
-
 \subsubsection{Measurement of Acceleration via Calibration and Differencing}
-
 To isolate acceleration caused solely by device movement, a calibration process was performed by maintaining the smartphone in a standard orientation—perpendicular to the ground with the screen facing the user—for one second. The accelerometer readings obtained during this calibration were used as a reference, and subsequent acceleration measurements were compared against this baseline to estimate changes due exclusively to motion. This approach assumes gravitational acceleration as a constant bias, allowing for a simplified implementation that focuses on relative changes in acceleration.
 
 However, gravitational force continuously affects accelerometer readings, and variations in device tilt or orientation can significantly alter the measured values. As such, ignoring the influence of gravity imposes a limitation on the accuracy of this method. The approach lacks the precision necessary to isolate pure translational acceleration. Consequently, we decided to incorporate a mathematically and physically grounded method for tracking the device’s orientation to account for gravitational effects more accurately.
-
 \FloatBarrier
 \begin{figure}
     \centering
@@ -227,6 +222,12 @@ Let the initial orientation of the device be denoted by $\begin{bmatrix} \psi_0 
 This method allows for a simple and effective estimation of the device’s initial pitch and roll, based on gravitational acceleration and assuming no initial yaw rotation.
 
 \begin{lstlisting}[language=Python, caption={Orientation estimation using accelerometer data}, label={lst:orientation_estimation}]
+def numerical_integration_with_range(self, integrand, start, end):
+    result = [0.0]
+    for idx, i in enumerate(range(start + 1, end + 1)):
+        result.append((integrand[i] + integrand[i - 1]) * (self.time[i] - self.time[i - 1]) / 2 + result[idx - 1])
+    return result
+
 def initialize_orientation(self):
     _initial_vector = np.array([self.acceleration_x[0], self.acceleration_y[0], self.acceleration_z[0]])
     _initial_vector = _initial_vector / np.linalg.norm(_initial_vector)
@@ -470,24 +471,43 @@ However, in terms of positional accuracy, the Kalman Filter did not yield a sign
 
 Therefore, in the next stage of this study, we plan to apply Fast Fourier Transform (FFT) techniques to analyze and suppress noise in the frequency domain, aiming for further improvement in signal fidelity and positional accuracy.
 
+\begin{lstlisting}[language=Python, caption={Kalman Filter for noise reduction}, label={lst:kalman_filter}]
+acceleration_x = acceleration_x - gravity_x
+acceleration_y = acceleration_y - gravity_y
+acceleration_z = acceleration_z - gravity_z
+
+kf = KalmanFilter(
+    transition_matrices=[1],
+    observation_matrices=[1],
+    initial_state_mean=0,
+    initial_state_covariance=1,
+    observation_covariance=1,
+    transition_covariance=0.01,
+)
+
+state_means_x, state_covariances_x = kf.filter(acceleration_x)
+state_means_y, state_covariances_y = kf.filter(acceleration_y)
+state_means_z, state_covariances_z = kf.filter(acceleration_z)
+\end{lstlisting}
+
 \FloatBarrier
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\textwidth]{2_1_8_1.png}
+    \includegraphics[height=0.3\textheight]{2_1_8_1.png}
     \caption{Comparision between raw accelerometer data and noise reduced accelerometer data using Kalman Filter}
     \label{fig:accel_kalman}
 \end{figure}
 \FloatBarrier
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\textwidth]{2_1_8_2.png}
+    \includegraphics[height=0.3\textheight]{2_1_8_2.png}
     \caption{Comparision between raw speed data and noise reduced speed data using Kalman Filter}
     \label{fig:speed_kalman}
 \end{figure}
 \FloatBarrier
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\textwidth]{2_1_8_3.png}
+    \includegraphics[height=0.3\textheight]{2_1_8_3.png}
     \caption{Comparision between raw position data and noise reduced position data using Kalman Filter}
     \label{fig:position_kalman}
 \end{figure}
@@ -616,7 +636,7 @@ This labeling scheme ensures that the model learns not only to recognize punch g
 
 \subsubsection{Data Augmentation Using Sliding Window}
 
-To increase the size of the training dataset and improve model generalizability, we adopted a **sliding window algorithm** to generate overlapping time-series samples. This method is particularly effective for time-dependent sensor data, as it allows the model to learn from slightly shifted but semantically similar motion sequences.
+To increase the size of the training dataset and improve model generalizability, we adopted a sliding window algorithm to generate overlapping time-series samples. This method is particularly effective for time-dependent sensor data, as it allows the model to learn from slightly shifted but semantically similar motion sequences.
 
 Given a raw data stream $\mathbf{D} = [\mathbf{d}_1, \mathbf{d}_2, ..., \mathbf{d}_n]$, where each $\mathbf{d}_i$ is a $3 \times 3$ matrix representing three consecutive accelerometer readings across the $x$, $y$, and $z$ axes, we construct input sequences $\mathbf{X}$ of fixed length $T$ using a sliding window of size $T$ and stride $1$. The label $\mathbf{y}$ for each sequence is assigned based on the punch class at the last timestep of the window.
 
@@ -682,35 +702,31 @@ The columns of the accumulated datasets are as follows:
 \FloatBarrier
 \begin{figure}[h]
     \centering
+    \includegraphics[width=\textwidth]{data_collection_flow_chart.png}
+    \caption{Punch data collection website flow chart}
+    \label{fig:data_collection_flow_chart}
+\end{figure}
+\FloatBarrier
+\begin{figure}[h]
+    \centering
     \begin{subfigure}{0.5\textwidth}
         \centering
-        \includegraphics[width=0.7\textwidth]{data_collection_web.png}
+        \includegraphics[width=0.35\textwidth]{data_collection_web.png}
         \caption{A screen for recording punch data}
         \label{fig:data_collection_web}
     \end{subfigure}%
     \begin{subfigure}{0.5\textwidth}
         \centering
-        \includegraphics[width=0.7\textwidth]{data_collection_web_info.png}
+        \includegraphics[width=0.35\textwidth]{data_collection_web_info.png}
         \caption{A screen for viewing recorded punch data}
         \label{fig:data_collection_web_info}
-
     \end{subfigure}
     \caption{Screenshots of the data collection \href{https://punch-boxing.github.io/punch-data-collection-web/}{website}}
     \label{fig:data_collection_web_screenshots}
 \end{figure}
 
 \FloatBarrier
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.7\textwidth]{data_collection_flow_chart.png}
-    \caption{Punch data collection website flow chart}
-    \label{fig:data_collection_flow_chart}
-\end{figure}
-
-
-\FloatBarrier
 \subsection{Analyzing Punch Data}
-
 As the graph is shown in Figure~\ref{fig:straight_user_input}, a Straight punch seems to have a relation between acceleration. Especially the local minima of the X-axis acceleration usually matches the peak of the punch. Besides, the value of Y-axis orientation had difference with the real situation. This seems to be occured by accumulated error of the gyroscope.
 
 \FloatBarrier
@@ -724,7 +740,7 @@ As the graph is shown in Figure~\ref{fig:straight_user_input}, a Straight punch 
 \FloatBarrier
 \begin{figure}[h]
     \centering
-    \includegraphics[height=0.9\textheight]{punch_data.png}
+    \includegraphics[width=\textwidth]{punch_data.png}
     \caption{Punch data collected from a user performing various punches(straight, body, hook, uppercut), each colored dot indicates the punch}
     \label{fig:punch_data}
 \end{figure}
@@ -743,8 +759,6 @@ In the first try, since TensorFlow can build a model with fewer code, the model 
 
 \FloatBarrier
 \subsection{Evaluating Various Punch Predict Model}
-
-MMASDAKFASDKFASKDFJ
 comparision between raw acc and gravity removed acc
 comparision between just acc and acc with orientation
 
