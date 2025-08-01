@@ -1,3 +1,23 @@
 {
-  "latex-workshop.formatting.latex": "latexindent"
+  "latex-workshop.formatting.latex": "latexindent",
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": true,
+  "editor.formatOnType": false,
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "explicit"
+  },
+  "[latex]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": true
+  },
+  "[tex]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": true
+  },
+  "files.associations": {
+    "*.tex": "latex"
+  }
 }

@@ -1,0 +1,24 @@
+{
+    "plugins": ["prettier-plugin-latex"],
+    "printWidth": 80,
+    "tabWidth": 4,
+    "useTabs": false,
+    "semi": true,
+    "singleQuote": false,
+    "quoteProps": "as-needed",
+    "trailingComma": "es5",
+    "bracketSpacing": true,
+    "bracketSameLine": false,
+    "arrowParens": "always",
+    "overrides": [
+        {
+            "files": "*.tex",
+            "options": {
+                "parser": "latex-parser",
+                "printWidth": 80,
+                "tabWidth": 4,
+                "useTabs": false
+            }
+        }
+    ]
+}
